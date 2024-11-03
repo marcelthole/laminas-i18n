@@ -25,20 +25,6 @@ class Symbol
     public $parser;
 
     /**
-     * Node or token type name.
-     *
-     * @var string
-     */
-    public $id;
-
-    /**
-     * Left binding power (precedence).
-     *
-     * @var int
-     */
-    public $leftBindingPower;
-
-    /**
      * Getter for null denotation.
      *
      * @var callable
@@ -86,11 +72,18 @@ class Symbol
      * @param  string  $id
      * @param  int $leftBindingPower
      */
-    public function __construct(Parser $parser, $id, $leftBindingPower)
-    {
-        $this->parser           = $parser;
-        $this->id               = $id;
-        $this->leftBindingPower = $leftBindingPower;
+    public function __construct(
+        Parser $parser,
+        /**
+         * Node or token type name.
+         */
+        public $id,
+        /**
+         * Left binding power (precedence).
+         */
+        public $leftBindingPower
+    ) {
+        $this->parser = $parser;
     }
 
     /**

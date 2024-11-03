@@ -346,7 +346,7 @@ class Translator implements TranslatorInterface
     public function translate($message, $textDomain = 'default', $locale = null)
     {
         $locale      = $locale === '' ? null : $locale;
-        $locale      = $locale ?? $this->getLocale();
+        $locale    ??= $this->getLocale();
         $translation = $this->getTranslatedMessage($message, $locale, $textDomain);
 
         if ($translation !== null && $translation !== '') {
@@ -381,7 +381,7 @@ class Translator implements TranslatorInterface
         $textDomain = 'default',
         $locale = null
     ) {
-        $locale      = $locale ?? $this->getLocale();
+        $locale    ??= $this->getLocale();
         $translation = $this->getTranslatedMessage($singular, $locale, $textDomain);
 
         if (is_string($translation)) {
@@ -493,7 +493,7 @@ class Translator implements TranslatorInterface
         $textDomain = 'default',
         $locale = null
     ) {
-        $locale = $locale ?? '*';
+        $locale ??= '*';
 
         if (! isset($this->files[$textDomain])) {
             $this->files[$textDomain] = [];
@@ -754,7 +754,7 @@ class Translator implements TranslatorInterface
      */
     public function getAllMessages($textDomain = 'default', $locale = null)
     {
-        $locale = $locale ?? $this->getLocale();
+        $locale ??= $this->getLocale();
 
         if (! isset($this->messages[$textDomain][$locale])) {
             $this->loadMessages($textDomain, $locale);
