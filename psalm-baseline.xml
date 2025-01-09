@@ -364,7 +364,6 @@
       <code><![CDATA[$file['type']]]></code>
       <code><![CDATA[$file['type']]]></code>
       <code><![CDATA[$loaderType]]></code>
-      <code><![CDATA[$options['cache']]]></code>
       <code><![CDATA[$pattern['base_dir']]]></code>
       <code><![CDATA[$pattern['pattern']]]></code>
       <code><![CDATA[$pattern['pattern']]]></code>
@@ -857,6 +856,20 @@
     <UnusedClosureParam>
       <code><![CDATA[$container]]></code>
     </UnusedClosureParam>
+  </file>
+  <file src="test/Translator/MemoryCacheImplementation.php">
+    <MixedArgument>
+      <code><![CDATA[$key]]></code>
+    </MixedArgument>
+    <MixedAssignment>
+      <code><![CDATA[$key]]></code>
+      <code><![CDATA[$results[$key]]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[bool]]></code>
+      <code><![CDATA[bool]]></code>
+    </PossiblyUnusedReturnValue>
   </file>
   <file src="test/Translator/Plural/RuleTest.php">
     <PossiblyUnusedMethod>

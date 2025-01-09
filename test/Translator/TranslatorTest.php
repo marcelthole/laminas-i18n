@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace LaminasTest\I18n\Translator;
 
-use Laminas\Cache\Storage\StorageInterface;
-use Laminas\Cache\StorageFactory as CacheFactory;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\EventInterface;
 use Laminas\I18n\Translator\TextDomain;
@@ -13,6 +11,7 @@ use Laminas\I18n\Translator\Translator;
 use LaminasTest\I18n\TestCase;
 use LaminasTest\I18n\Translator\TestAsset\Loader as TestLoader;
 use Locale;
+use Psr\SimpleCache\CacheInterface;
 
 class TranslatorTest extends TestCase
 {
@@ -132,13 +131,10 @@ class TranslatorTest extends TestCase
                     'pattern'  => 'translation-%s.php',
                 ],
             ],
-            'cache'    => [
-                'adapter' => 'memory',
-            ],
+            'cache'    => $this->createMock(CacheInterface::class),
         ]);
 
         self::assertInstanceOf(Translator::class, $translator);
-        self::assertInstanceOf(StorageInterface::class, $translator->getCache());
     }
 
     public function testDefaultLocale(): void
@@ -170,32 +166,36 @@ class TranslatorTest extends TestCase
 
     public function testTranslationsLoadedFromCache(): void
     {
-        $cache = CacheFactory::factory(['adapter' => 'memory']);
-        $this->translator->setCache($cache);
+        $cache      = new MemoryCacheImplementation();
+        $translator = Translator::factory([
+            'cache' => $cache,
+        ]);
 
-        $cache->addItem(
-            $this->translator->getCacheId('default', 'en_EN'),
+        $cache->set(
+            $translator->getCacheId('default', 'en_EN'),
             new TextDomain(['foo' => 'bar'])
         );
 
-        self::assertEquals('bar', $this->translator->translate('foo'));
+        self::assertEquals('bar', $translator->translate('foo'));
     }
 
     public function testTranslationsAreStoredInCache(): void
     {
-        $cache = CacheFactory::factory(['adapter' => 'memory']);
-        $this->translator->setCache($cache);
+        $cache      = new MemoryCacheImplementation();
+        $translator = Translator::factory([
+            'cache' => $cache,
+        ]);
 
         $loader             = new TestLoader();
         $loader->textDomain = new TextDomain(['foo' => 'bar']);
-        $plugins            = $this->translator->getPluginManager();
+        $plugins            = $translator->getPluginManager();
         $plugins->configure(['services' => ['test' => $loader]]);
-        $this->translator->setPluginManager($plugins);
-        $this->translator->addTranslationFile('test', null);
+        $translator->setPluginManager($plugins);
+        $translator->addTranslationFile('test', null);
 
-        self::assertEquals('bar', $this->translator->translate('foo'));
+        self::assertEquals('bar', $translator->translate('foo'));
 
-        $item = $cache->getItem($this->translator->getCacheId('default', 'en_EN'));
+        $item = $cache->get($translator->getCacheId('default', 'en_EN'));
         self::assertInstanceOf(TextDomain::class, $item);
         self::assertEquals('bar', $item['foo']);
     }
@@ -205,19 +205,20 @@ class TranslatorTest extends TestCase
         $textDomain = 'default';
         $locale     = 'en_EN';
 
-        $cache = CacheFactory::factory(['adapter' => 'memory']);
-        $this->translator->setCache($cache);
+        $cache      = new MemoryCacheImplementation();
+        $translator = Translator::factory([
+            'cache' => $cache,
+        ]);
 
-        $cache->addItem(
-            $this->translator->getCacheId($textDomain, $locale),
+        $cache->set(
+            $translator->getCacheId($textDomain, $locale),
             new TextDomain(['foo' => 'bar'])
         );
 
-        self::assertTrue($this->translator->clearCache($textDomain, $locale));
+        self::assertTrue($translator->clearCache($textDomain, $locale));
 
-        $item = $cache->getItem($this->translator->getCacheId($textDomain, $locale), $success);
+        $item = $cache->get($translator->getCacheId($textDomain, $locale));
         self::assertNull($item);
-        self::assertFalse($success);
     }
 
     public function testClearCacheReturnsFalseIfNoCacheIsPresent(): void
